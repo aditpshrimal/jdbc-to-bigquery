@@ -42,7 +42,7 @@ public interface MyOptions extends PipelineOptions {
     //@Default.String("project-name:database.table")
     @Default.String("future-sunrise-333208:kms_poc.customersNonPii,future-sunrise-333208:kms_poc.customersPii")
     ValueProvider<String> getOutputTable();
-    void setOutputTable(ValueProvider<String> outputFilePath);
+    void setOutputTable(ValueProvider<String> outputTable);
 
     @Description("PII Flag")
     @Default.String("yes")
