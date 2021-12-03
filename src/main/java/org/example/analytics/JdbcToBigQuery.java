@@ -24,32 +24,34 @@ import java.util.Set;
 
 public class JdbcToBigQuery {
     static class nonPiiParDo extends DoFn<TableRow, TableRow> {
-        ValueProvider<String> piiColumnNames;
-        public nonPiiParDo(ValueProvider<String> piiColumnNames){
+        String piiColumnNames;
+        public nonPiiParDo(String  piiColumnNames){
             this.piiColumnNames = piiColumnNames;
         }
         @ProcessElement
         public void processElement(ProcessContext c)  {
-            String[] values = piiColumnNames.get().split(",");
+            String[] values = piiColumnNames.split(",");
             Set<String> piiSet = new HashSet<String>(Arrays.asList(values));
             TableRow row = c.element();
             TableRow newRow = new TableRow();
             Set<String> keys = row.keySet();
+            System.out.println(keys);
             keys = Sets.difference(keys,piiSet);
             for(String key:keys) {
                 newRow.set(key, row.get(key));
-                c.output(newRow);
+
             }
+            c.output(newRow);
         }
     }
     static class piiPardo extends DoFn<TableRow, TableRow> {
-        ValueProvider<String> piiColumnNames;
-        public piiPardo(ValueProvider<String> piiColumnNames){
+        String piiColumnNames;
+        public piiPardo(String piiColumnNames){
             this.piiColumnNames = piiColumnNames;
         }
         @ProcessElement
         public void processElement(ProcessContext c) throws GeneralSecurityException, IOException {
-            String[] values = piiColumnNames.get().split(",");
+            String[] values = piiColumnNames.split(",");
             Set<String> piiSet = new HashSet<String>(Arrays.asList(values));
             TableRow row = c.element();
             TableRow newRow = new TableRow();
@@ -63,14 +65,19 @@ public class JdbcToBigQuery {
                     newRow.set(key,encryptedData);
                 }
 
-                c.output(newRow);
+
             }
+            c.output(newRow);
         }
     }
     public static void main(String[] args) throws GeneralSecurityException, IOException {
 
         MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
         Pipeline pipeline = Pipeline.create(options);
+        String piiFlag = "yes";
+        String[] outputTableNames = "future-sunrise-333208:kms_poc.customersNonPii,future-sunrise-333208:kms_poc.customersPii".split(",");
+        String piiColumnNames = "phone,addressLine1,addressLine2";
+        KmsEncryption.initializeOnce();
 
             PCollection<TableRow> inputData =  pipeline.apply("Reading Database",
                         JdbcIO.<TableRow>read()
@@ -90,10 +97,10 @@ public class JdbcToBigQuery {
                                          return outputTableRow;
                                     }
                                 }));
-            if(options.getPiiFlag().get().equals("yes")) {
-                String[] tableNames = options.getOutputTable().get().split(",");
+            if(piiFlag.equals("yes")) {
+                String[] tableNames = outputTableNames;
                 inputData.
-                        apply(ParDo.of(new nonPiiParDo(options.getPiiColumnNames())))
+                        apply(ParDo.of(new nonPiiParDo(piiColumnNames)))
                         .apply(
                                 "Write to BigQuery",
                                 BigQueryIO.writeTableRows()
@@ -103,7 +110,7 @@ public class JdbcToBigQuery {
                                         .withCustomGcsTempLocation(options.getBigQueryLoadingTemporaryDirectory())
                                         .to(tableNames[0]));
                 inputData.
-                        apply(ParDo.of(new piiPardo(options.getPiiColumnNames())))
+                        apply(ParDo.of(new piiPardo(piiColumnNames)))
                         .apply(
                                 "Write to BigQuery",
                                 BigQueryIO.writeTableRows()
