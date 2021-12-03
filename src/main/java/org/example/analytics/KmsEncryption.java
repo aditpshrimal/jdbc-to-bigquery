@@ -25,7 +25,7 @@ public class KmsEncryption {
         aad = "Using google tink for encryption";
 
         Storage storage = StorageOptions.getDefaultInstance().getService();
-        BlobId blobId = BlobId.of("tink-poc","secured_keys.json");
+        BlobId blobId = BlobId.of("tink-poc","encrypted_keys.json");
         Blob blob = storage.get(blobId);
         String value = new String(blob.getContent());
         String masterKeyUri = "gcp-kms://projects/future-sunrise-333208/locations/us-central1/keyRings/test_key_ring_us/cryptoKeys/test_key2";
