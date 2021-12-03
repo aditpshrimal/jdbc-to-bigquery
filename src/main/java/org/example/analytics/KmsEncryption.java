@@ -1,5 +1,7 @@
 package org.example.analytics;
 
+
+import com.google.cloud.storage.*;
 import com.google.crypto.tink.*;
 import com.google.crypto.tink.aead.AeadConfig;
 import com.google.crypto.tink.integration.gcpkms.GcpKmsAead;
@@ -22,19 +24,17 @@ public class KmsEncryption {
         AeadConfig.register();
         aad = "Using google tink for encryption";
 
-        //File file = new File("./secure_keys.json");
-//        KeysetHandle keysetHandle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(file));
+        Storage storage = StorageOptions.getDefaultInstance().getService();
+        BlobId blobId = BlobId.of("tink-poc","my_keyset.json");
+        Blob blob = storage.get(blobId);
+        String value = new String(blob.getContent());
         String masterKeyUri = "gcp-kms://projects/future-sunrise-333208/locations/us-central1/keyRings/test_key_ring_us/cryptoKeys/test_key_us";
         KeysetHandle keysetHandle = KeysetHandle.read(
-                JsonKeysetReader.withFile(new File("./my_keyset.json")),
+                JsonKeysetReader.withString(value),
                 new GcpKmsClient().withDefaultCredentials().getAead(masterKeyUri));
         ByteArrayOutputStream symmetricKeyOutputStream = new ByteArrayOutputStream();
         CleartextKeysetHandle.write(keysetHandle, BinaryKeysetWriter.withOutputStream(symmetricKeyOutputStream));
         System.out.println("Base64: "+ Base64.getEncoder().encodeToString(symmetricKeyOutputStream.toByteArray()));
-        /*File file = new File("./encrypted_keys2.json");
-        String uri = "gcp-kms://projects/future-sunrise-333208/locations/global/keyRings/my-app-keyring/cryptoKeys/testKey";
-        KeysetHandle keysetHandle = KeysetHandle.read(JsonKeysetReader.withFile(file),
-                new GcpKmsClient().withCredentials("./gcp_credentials.json").getAead(uri));*/
         aead = keysetHandle.getPrimitive(Aead.class);
 
     }
