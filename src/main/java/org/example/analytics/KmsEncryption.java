@@ -28,7 +28,7 @@ public class KmsEncryption {
         BlobId blobId = BlobId.of("tink-poc","my_keyset.json");
         Blob blob = storage.get(blobId);
         String value = new String(blob.getContent());
-        String masterKeyUri = "gcp-kms://projects/future-sunrise-333208/locations/us-central1/keyRings/test_key_ring_us/cryptoKeys/test_key_us/cryptoKeyVersions/1";
+        String masterKeyUri = "gcp-kms://projects/future-sunrise-333208/locations/us-central1/keyRings/test_key_ring_us/cryptoKeys/test_key_us";
         KeysetHandle keysetHandle = KeysetHandle.read(
                 JsonKeysetReader.withString(value),
                 new GcpKmsClient().withDefaultCredentials().getAead(masterKeyUri));
