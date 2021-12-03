@@ -16,9 +16,9 @@ public class KeyGenerator {
                 KeyTemplates.get("AES256_GCM"));
 
         // and write it to a file...
-        String keysetFilename = "secured_keys.json";
+        String keysetFilename = "encrypted_keys.json";
         // encrypted with the this key in GCP KMS
-        String masterKeyUri = "gcp-kms://projects/future-sunrise-333208/locations/us-central1/keyRings/test_key_ring_us/cryptoKeys/test_key_us";
+        String masterKeyUri = "gcp-kms://projects/future-sunrise-333208/locations/us-central1/keyRings/test_key_ring_us/cryptoKeys/test_key2";
         keysetHandle.write(JsonKeysetWriter.withFile(new File(keysetFilename)),
                 new GcpKmsClient().withDefaultCredentials().getAead(masterKeyUri));
     }
