@@ -48,7 +48,7 @@ public class JdbcToBigQuery {
             this.piiColumnNames = piiColumnNames;
         }
         @ProcessElement
-        public void processElement(ProcessContext c) throws GeneralSecurityException {
+        public void processElement(ProcessContext c) throws GeneralSecurityException, IOException {
             String[] values = piiColumnNames.get().split(",");
             Set<String> piiSet = new HashSet<String>(Arrays.asList(values));
             TableRow row = c.element();
@@ -71,7 +71,6 @@ public class JdbcToBigQuery {
 
         MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
         Pipeline pipeline = Pipeline.create(options);
-        KmsEncryption.initializeOnce();
 
             PCollection<TableRow> inputData =  pipeline.apply("Reading Database",
                         JdbcIO.<TableRow>read()

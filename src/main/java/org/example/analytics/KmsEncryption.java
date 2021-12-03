@@ -38,8 +38,10 @@ public class KmsEncryption {
         aead = keysetHandle.getPrimitive(Aead.class);
 
     }
-    public static byte[] encrypt(String plainText) throws GeneralSecurityException {
-
+    public static byte[] encrypt(String plainText) throws GeneralSecurityException, IOException {
+        if(aad==null){
+            initializeOnce();
+        }
         byte[] ciphertext = aead.encrypt(plainText.getBytes(StandardCharsets.UTF_8),aad.getBytes(StandardCharsets.UTF_8));
         return ciphertext;
 
