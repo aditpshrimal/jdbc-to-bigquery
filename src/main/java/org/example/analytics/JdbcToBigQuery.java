@@ -91,7 +91,7 @@ public class JdbcToBigQuery {
                                          return outputTableRow;
                                     }
                                 }));
-            if(options.getPiiFlag().get()=="yes") {
+            if(options.getPiiFlag().get().equals("yes")) {
                 String[] tableNames = options.getOutputTable().get().split(",");
                 inputData.
                         apply(ParDo.of(new nonPiiParDo(options.getPiiColumnNames())))
