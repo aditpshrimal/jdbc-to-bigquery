@@ -36,7 +36,7 @@ public interface MyOptions extends PipelineOptions {
     @Description("BigQuery temp location")
     @Default.String("gs://tink-poc/")
     ValueProvider<String> getBigQueryLoadingTemporaryDirectory();
-    void setBigQueryLoadingTemporaryDirectory(ValueProvider<String> outputFilePath);
+    void setBigQueryLoadingTemporaryDirectory(ValueProvider<String> bigQueryLoadingTemporaryDirectory);
 
     @Description("BigQuery table")
     //@Default.String("project-name:database.table")
