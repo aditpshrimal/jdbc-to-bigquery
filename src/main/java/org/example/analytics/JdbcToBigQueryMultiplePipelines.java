@@ -11,7 +11,6 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import sun.tools.jconsole.Tab;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.ResultSet;
@@ -29,7 +28,7 @@ public class JdbcToBigQueryMultiplePipelines {
         Pipeline pipeline = Pipeline.create(options);
         KmsEncryption.initializeOnce();
 
-            PCollection<TableRow> inputData =  pipeline.apply("Reading Database",
+            pipeline.apply("Reading Database",
                         JdbcIO.<TableRow>read()
                                 .withDataSourceConfiguration(JdbcIO.DataSourceConfiguration
                                         .create(options.getDriverClassName(), options.getJdbcUrl())

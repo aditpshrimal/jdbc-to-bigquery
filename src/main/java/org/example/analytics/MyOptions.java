@@ -33,6 +33,11 @@ public interface MyOptions extends PipelineOptions {
     ValueProvider<String> getPassword();
     void setPassword(ValueProvider<String> password);
 
+    @Description("Load type")
+    @Default.String("FULL")
+    ValueProvider<String> getLoadType();
+    void setLoadType(ValueProvider<String> loadType);
+
     @Description("BigQuery temp location")
     @Default.String("gs://tink-poc/")
     ValueProvider<String> getBigQueryLoadingTemporaryDirectory();
