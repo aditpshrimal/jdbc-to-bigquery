@@ -74,9 +74,9 @@ public class JdbcToBigQuery {
 
         MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
         Pipeline pipeline = Pipeline.create(options);
-        String piiFlag = "yes";
-        String[] outputTableNames = "future-sunrise-333208:kms_poc.customersNonPii,future-sunrise-333208:kms_poc.customersPii".split(",");
-        String piiColumnNames = "phone,addressLine1,addressLine2";
+        ValueProvider<String> piiFlag = options.getPiiFlag();//"yes";
+        String[] outputTableNames = options.getOutputTable().get().split(",");//"future-sunrise-333208:kms_poc.customersNonPii,future-sunrise-333208:kms_poc.customersPii".split(",");
+        ValueProvider<String> piiColumnNames = options.getPiiColumnNames();//"phone,addressLine1,addressLine2";
         KmsEncryption.initializeOnce();
 
             PCollection<TableRow> inputData =  pipeline.apply("Reading Database",
@@ -100,7 +100,7 @@ public class JdbcToBigQuery {
             if(piiFlag.equals("yes")) {
                 String[] tableNames = outputTableNames;
                 inputData.
-                        apply(ParDo.of(new nonPiiParDo(piiColumnNames)))
+                        apply(ParDo.of(new nonPiiParDo(piiColumnNames.get())))
                         .apply(
                                 "Write to BigQuery",
                                 BigQueryIO.writeTableRows()
@@ -110,7 +110,7 @@ public class JdbcToBigQuery {
                                         .withCustomGcsTempLocation(options.getBigQueryLoadingTemporaryDirectory())
                                         .to(tableNames[0]));
                 inputData.
-                        apply(ParDo.of(new piiPardo(piiColumnNames)))
+                        apply(ParDo.of(new piiPardo(piiColumnNames.get())))
                         .apply(
                                 "Write to BigQuery",
                                 BigQueryIO.writeTableRows()
