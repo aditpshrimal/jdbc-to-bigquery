@@ -33,6 +33,12 @@ public interface MyOptions extends PipelineOptions {
     ValueProvider<String> getPassword();
     void setPassword(ValueProvider<String> password);
 
+
+    @Description("Join key")
+    @Default.String("customerNumber")
+    ValueProvider<String> getJoinKey();
+    void setJoinKey(ValueProvider<String> joinKey);
+
     @Description("Load type")
     @Default.String("FULL")
     ValueProvider<String> getLoadType();
