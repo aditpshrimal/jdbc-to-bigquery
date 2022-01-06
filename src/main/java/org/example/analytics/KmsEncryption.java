@@ -24,13 +24,13 @@ public class KmsEncryption {
         AeadConfig.register();
         aad = "Using google tink for encryption";
 
-        /*Storage storage = StorageOptions.getDefaultInstance().getService();
+        Storage storage = StorageOptions.getDefaultInstance().getService();
         BlobId blobId = BlobId.of("tink-poc","encrypted_keys.json");
         Blob blob = storage.get(blobId);
-        String value = new String(blob.getContent());*/
+        String value = new String(blob.getContent());
         String masterKeyUri = "gcp-kms://projects/future-sunrise-333208/locations/us-central1/keyRings/test_key_ring_us/cryptoKeys/test_key2";
         KeysetHandle keysetHandle = KeysetHandle.read(
-                JsonKeysetReader.withFile(new File("./encrypted_keys.json")),
+                JsonKeysetReader.withString(value),
                 new GcpKmsClient().withDefaultCredentials().getAead(masterKeyUri));
         ByteArrayOutputStream symmetricKeyOutputStream = new ByteArrayOutputStream();
         CleartextKeysetHandle.write(keysetHandle, BinaryKeysetWriter.withOutputStream(symmetricKeyOutputStream));
@@ -39,9 +39,6 @@ public class KmsEncryption {
 
     }
     public static byte[] encrypt(String plainText) throws GeneralSecurityException, IOException {
-//        if(aad==null){
-//            initializeOnce();
-//        }
         byte[] ciphertext = aead.encrypt(plainText.getBytes(StandardCharsets.UTF_8),aad.getBytes(StandardCharsets.UTF_8));
         return ciphertext;
 
